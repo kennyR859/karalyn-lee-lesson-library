@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rational Function Explorer — Karalyn Lee</title>
+<style>
+  /* ── Tokens ─────────────────────────────────────────────── */
+  :root {
+    --emerald:      #10b981;
+    --emerald-dark: #065f46;
+    --emerald-mid:  #059669;
+    --mint:         #d1fae5;
+    --mint-light:   #ecfdf5;
+    --bg:           #f9fafb;
+    --surface:      #ffffff;
+    --border:       #e5e7eb;
+    --text:         #111827;
+    --text-muted:   #6b7280;
+    --va:           #ef4444;
+    --ha:           #3b82f6;
+    --slant:        #a855f7;
+    --crossing:     #f59e0b;
+    --hole:         #6b7280;
+    --curve:        #10b981;
+    --grid:         #e5e7eb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  header {
+    background: var(--emerald-dark);
+    color: #fff;
+    padding: 20px 32px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .brand {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    color: var(--mint);
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  header p {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  /* ── Main Layout ─────────────────────────────────────────── */
+  .main {
+    display: grid;
+    grid-template-columns: 310px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 90px);
+  }
+
+  /* ── Left Panel ──────────────────────────────────────────── */
+  .left-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--emerald-dark);
+    margin-bottom: 8px;
+  }
+
+  /* Preset buttons */
+  .preset-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .preset-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .preset-btn:hover { border-color: var(--emerald); background: var(--mint-light); }
+  .preset-btn.active { border-color: var(--emerald); background: var(--mint); }
+  .preset-tag {
+    font-size: 11px;
+    font-weight: 800;
+    background: var(--emerald);
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 7px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+  .preset-info { flex: 1; }
+  .preset-name { font-size: 12px; font-weight: 700; color: var(--emerald-dark); }
+  .preset-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+  .preset-fn { font-size: 11.5px; font-family: 'Courier New', monospace; color: var(--text); margin-top: 3px; }
+
+  /* Coefficient inputs */
+  .coeff-section { }
+  .fraction-display {
+    background: var(--mint-light);
+    border: 1.5px solid var(--mint);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: var(--emerald-dark);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .fn-num { border-bottom: 1.5px solid var(--emerald-dark); padding-bottom: 3px; min-width: 80px; text-align: center; }
+  .fn-den { padding-top: 3px; min-width: 80px; text-align: center; }
+
+  .poly-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .poly-inputs-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .coeff-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .coeff-wrap label { font-size: 10px; color: var(--text-muted); text-align: center; font-family: 'Courier New', monospace; }
+  .coeff-wrap input[type=number] {
+    width: 100%;
+    padding: 5px 4px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    text-align: center;
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color 0.15s;
+  }
+  .coeff-wrap input:focus { outline: none; border-color: var(--emerald); }
+
+  .degree-select-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .degree-select-row label { font-size: 11px; color: var(--text-muted); }
+  .degree-select-row select {
+    padding: 3px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .degree-select-row select:focus { outline: none; border-color: var(--emerald); }
+
+  .input-divider {
+    border: none; border-top: 1px solid var(--border); margin: 2px 0 6px;
+  }
+
+  /* Toggles */
+  .toggles { display: flex; flex-direction: column; gap: 7px; }
+  .toggle-row {
+    display: flex; align-items: center; gap: 9px;
+    cursor: pointer; font-size: 12px;
+  }
+  .toggle-row input[type=checkbox] { accent-color: var(--emerald); width: 14px; height: 14px; }
+
+  /* Zoom */
+  .zoom-row { display: flex; align-items: center; gap: 8px; }
+  .zoom-row label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .zoom-row input[type=range] { flex: 1; accent-color: var(--emerald); }
+  .zoom-val { font-size: 11px; color: var(--emerald-dark); font-weight: 600; width: 36px; text-align: right; }
+
+  /* Reset */
+  .reset-btn {
+    margin-top: 4px;
+    padding: 8px 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--va); color: var(--va); }
+
+  /* Legend */
+  .legend { display: flex; flex-direction: column; gap: 5px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-muted); }
+  .legend-line { width: 22px; height: 2px; border-radius: 1px; }
+  .legend-line.dashed { background: transparent; border-top: 2px dashed currentColor; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Right Panel (graph) ─────────────────────────────────── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  .canvas-wrap {
+    flex: 1;
+    padding: 18px 18px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  canvas {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    display: block;
+    max-width: 100%;
+  }
+
+  /* ── Info Bar ────────────────────────────────────────────── */
+  .info-bar {
+    background: var(--surface);
+    border-top: 1.5px solid var(--border);
+    padding: 14px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px 18px;
+    margin-top: 14px;
+  }
+  .info-item { }
+  .info-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+  .info-value {
+    font-size: 12.5px;
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .info-value.va-color { color: var(--va); }
+  .info-value.ha-color { color: var(--ha); }
+  .info-value.slant-color { color: var(--slant); }
+  .info-value.cross-color { color: var(--crossing); font-weight: 700; }
+  .info-value.hole-color { color: var(--hole); }
+
+  /* ── Insight callout ─────────────────────────────────────── */
+  .insight-box {
+    margin: 8px 18px 0;
+    background: #fffbeb;
+    border: 1.5px solid var(--crossing);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    color: #78350f;
+    line-height: 1.5;
+    display: none;
+  }
+  .insight-box.show { display: block; }
+  .insight-box strong { color: #92400e; }
+
+  /* Responsive */
+  @media (max-width: 760px) {
+    .main { grid-template-columns: 1fr; }
+    .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header>
+  <div class="brand">Newton School</div>
+  <h1>Rational Function Explorer</h1>
+  <p>Change the function, watch the asymptotes — and see when the graph crosses them.</p>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Left Panel -->
+  <div class="left-panel">
+
+    <!-- Presets -->
+    <div>
+      <div class="section-title">Preset Types</div>
+      <div class="preset-group">
+        <button class="preset-btn active" id="btn-a" onclick="loadPreset('A')">
+          <span class="preset-tag">A</span>
+          <div class="preset-info">
+            <div class="preset-name">HA: y = 0</div>
+            <div class="preset-desc">deg(num) &lt; deg(den)</div>
+            <div class="preset-fn">f(x) = (x − 1) / (x² − 4)</div>
+          </div>
+        </button>
+        <button class="preset-btn" id="btn-b" onclick="loadPreset('B')">
+          <span class="preset-tag">B</span>
+          <div class="preset-info">
+            <div class="preset-name">HA: y = ratio</div>
+            <div class="preset-desc">deg(num) = deg(den)</div>
+            <div class="preset-fn">f(x) = (3x² + 2x − 1) / (x² − 1)</div>
+          </div>
+        </button>
+        <button class="preset-btn" id="btn-c" onclick="loadPreset('C')">
+          <span class="preset-tag">C</span>
+          <div class="preset-info">
+            <div class="preset-name">Slant Asymptote</div>
+            <div class="preset-desc">deg(num) = deg(den) + 1</div>
+            <div class="preset-fn">f(x) = (x² − x − 2) / (x − 3)</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Function Input -->
+    <div class="coeff-section">
+      <div class="section-title">Custom Function</div>
+
+      <div class="fraction-display">
+        <div class="fn-num" id="fn-num-display">…</div>
+        <div class="fn-den" id="fn-den-display">…</div>
+      </div>
+
+      <!-- Numerator -->
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Numerator degree:</div>
+      <div class="degree-select-row">
+        <select id="num-deg" onchange="updateInputs()">
+          <option value="0">0 — constant</option>
+          <option value="1">1 — linear</option>
+          <option value="2" selected>2 — quadratic</option>
+          <option value="3">3 — cubic</option>
+        </select>
+      </div>
+      <div class="poly-inputs" id="num-inputs"></div>
+
+      <hr class="input-divider">
+
+      <!-- Denominator -->
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Denominator degree:</div>
+      <div class="degree-select-row">
+        <select id="den-deg" onchange="updateInputs()">
+          <option value="0">0 — constant</option>
+          <option value="1">1 — linear</option>
+          <option value="2" selected>2 — quadratic</option>
+          <option value="3">3 — cubic</option>
+        </select>
+      </div>
+      <div class="poly-inputs" id="den-inputs"></div>
+    </div>
+
+    <!-- Toggles -->
+    <div>
+      <div class="section-title">Display Options</div>
+      <div class="toggles">
+        <label class="toggle-row">
+          <input type="checkbox" id="tog-powers" checked onchange="draw()">
+          Show factor powers near VAs
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="tog-crossing" checked onchange="draw()">
+          Highlight crossing points
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="tog-holes" checked onchange="draw()">
+          Show holes
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="tog-labels" checked onchange="draw()">
+          Asymptote labels
+        </label>
+      </div>
+    </div>
+
+    <!-- Zoom -->
+    <div>
+      <div class="section-title">View Range</div>
+      <div class="zoom-row">
+        <label>x range:</label>
+        <input type="range" id="zoom-slider" min="4" max="40" value="10" step="1" oninput="onZoom()">
+        <span class="zoom-val" id="zoom-val-label">±10</span>
+      </div>
+    </div>
+
+    <!-- Reset -->
+    <button class="reset-btn" onclick="loadPreset('A')">Reset to Type A</button>
+
+    <!-- Legend -->
+    <div>
+      <div class="section-title">Legend</div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-line" style="background:var(--curve);height:2.5px;border-radius:2px;"></div>
+          Curve f(x)
+        </div>
+        <div class="legend-item" style="color:var(--va)">
+          <div class="legend-line dashed" style="color:var(--va);border-color:var(--va)"></div>
+          Vertical Asymptote (VA) — never crossed
+        </div>
+        <div class="legend-item" style="color:var(--ha)">
+          <div class="legend-line dashed" style="color:var(--ha);border-color:var(--ha)"></div>
+          Horizontal Asymptote (HA) — can be crossed!
+        </div>
+        <div class="legend-item" style="color:var(--slant)">
+          <div class="legend-line dashed" style="color:var(--slant);border-color:var(--slant)"></div>
+          Slant Asymptote — can be crossed!
+        </div>
+        <div class="legend-item" style="color:var(--crossing)">
+          <div class="legend-dot" style="background:var(--crossing);"></div>
+          Crossing point (HA/Slant)
+        </div>
+        <div class="legend-item" style="color:var(--hole)">
+          <div class="legend-dot" style="background:transparent;border:2px solid var(--hole);"></div>
+          Hole (removable discontinuity)
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="canvas-wrap">
+      <canvas id="graph" width="680" height="480"></canvas>
+    </div>
+
+    <!-- Insight callout -->
+    <div class="insight-box" id="insight-box">
+      <strong>Kenny's Insight:</strong> <span id="insight-text"></span>
+    </div>
+
+    <!-- Info Bar -->
+    <div class="info-bar">
+      <div class="info-item">
+        <div class="info-label">Factored Form</div>
+        <div class="info-value" id="info-factored">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Holes</div>
+        <div class="info-value hole-color" id="info-holes">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Vertical Asymptotes</div>
+        <div class="info-value va-color" id="info-va">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Horiz. / Slant Asymptote</div>
+        <div class="info-value ha-color" id="info-ha">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Crossing Points</div>
+        <div class="info-value cross-color" id="info-cross">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">VA Direction Rule</div>
+        <div class="info-value" id="info-va-dir">—</div>
+      </div>
+    </div>
+  </div><!-- /right-panel -->
+
+</div><!-- /main -->
+
+<script>
+// ────────────────────────────────────────────────────────────
+// State
+// ────────────────────────────────────────────────────────────
+let numCoeffs = [];  // highest degree first: [a2, a1, a0]
+let denCoeffs = [];
+let viewRange = 10; // x in [-viewRange, viewRange]
+
+// ────────────────────────────────────────────────────────────
+// Polynomial helpers
+// ────────────────────────────────────────────────────────────
+function polyEval(coeffs, x) {
+  // coeffs: [leading, ..., constant]
+  let val = 0;
+  const n = coeffs.length - 1;
+  for (let i = 0; i <= n; i++) {
+    val += coeffs[i] * Math.pow(x, n - i);
+  }
+  return val;
+}
+
+function polyDeg(coeffs) {
+  for (let i = 0; i < coeffs.length; i++) {
+    if (Math.abs(coeffs[i]) > 1e-10) return coeffs.length - 1 - i;
+  }
+  return 0;
+}
+
+function polyLeading(coeffs) {
+  for (let i = 0; i < coeffs.length; i++) {
+    if (Math.abs(coeffs[i]) > 1e-10) return coeffs[i];
+  }
+  return 0;
+}
+
+// Find real roots of polynomial (up to cubic) using numeric methods
+function findRoots(coeffs) {
+  const n = polyDeg(coeffs);
+  if (n === 0) return [];
+  if (n === 1) {
+    // ax + b = 0
+    const trimmed = trimCoeffs(coeffs);
+    if (trimmed.length < 2) return [];
+    const a = trimmed[0], b = trimmed[1];
+    if (Math.abs(a) < 1e-12) return [];
+    return [-b / a];
+  }
+  if (n === 2) {
+    const trimmed = trimCoeffs(coeffs);
+    const a = trimmed[0], b = trimmed[1] ?? 0, c = trimmed[2] ?? 0;
+    const disc = b*b - 4*a*c;
+    if (disc < 0) return [];
+    if (disc === 0) return [-b / (2*a)];
+    return [(-b + Math.sqrt(disc)) / (2*a), (-b - Math.sqrt(disc)) / (2*a)];
+  }
+  if (n === 3) {
+    return numericRoots(coeffs, -200, 200, 0.05);
+  }
+  return numericRoots(coeffs, -200, 200, 0.05);
+}
+
+function trimCoeffs(coeffs) {
+  let i = 0;
+  while (i < coeffs.length - 1 && Math.abs(coeffs[i]) < 1e-12) i++;
+  return coeffs.slice(i);
+}
+
+function numericRoots(coeffs, lo, hi, step) {
+  const roots = [];
+  let prev = polyEval(coeffs, lo);
+  for (let x = lo + step; x <= hi; x += step) {
+    const cur = polyEval(coeffs, x);
+    if (prev * cur < 0) {
+      const r = bisect(coeffs, x - step, x);
+      if (!roots.some(rr => Math.abs(rr - r) < 0.01)) roots.push(r);
+    }
+    // Check near-zero (double root)
+    if (Math.abs(cur) < 1e-3 && !roots.some(rr => Math.abs(rr - x) < 0.05)) {
+      roots.push(x);
+    }
+    prev = cur;
+  }
+  return roots.sort((a,b) => a - b);
+}
+
+function bisect(coeffs, a, b) {
+  for (let i = 0; i < 50; i++) {
+    const m = (a + b) / 2;
+    if (polyEval(coeffs, a) * polyEval(coeffs, m) < 0) b = m; else a = m;
+  }
+  return (a + b) / 2;
+}
+
+// Polynomial long division: returns [quotient coeffs, remainder coeffs]
+function polyDivide(num, den) {
+  let rem = [...num];
+  const dLen = trimCoeffs(den).length;
+  const q = [];
+  const d = trimCoeffs(den);
+  while (rem.length >= d.length && Math.abs(rem[0]) > 1e-12) {
+    const coef = rem[0] / d[0];
+    q.push(coef);
+    for (let i = 0; i < d.length; i++) {
+      rem[i] -= coef * d[i];
+    }
+    rem.shift();
+  }
+  return [q, rem];
+}
+
+// ────────────────────────────────────────────────────────────
+// Analysis
+// ────────────────────────────────────────────────────────────
+function analyze() {
+  const numDeg = polyDeg(numCoeffs);
+  const denDeg = polyDeg(denCoeffs);
+
+  const numRoots = findRoots(numCoeffs);
+  const denRoots = findRoots(denCoeffs);
+
+  // Holes: common roots
+  const holes = [];
+  const vas = [];
+  for (const dr of denRoots) {
+    const isHole = numRoots.some(nr => Math.abs(nr - dr) < 0.03);
+    if (isHole) {
+      holes.push(dr);
+    } else {
+      vas.push(dr);
+    }
+  }
+
+  // Asymptote
+  let ha = null, slant = null;
+  let slantCoeffs = null;
+  if (numDeg < denDeg) {
+    ha = 0;
+  } else if (numDeg === denDeg) {
+    ha = polyLeading(numCoeffs) / polyLeading(denCoeffs);
+  } else if (numDeg === denDeg + 1) {
+    const [q, r] = polyDivide(trimCoeffs(numCoeffs), trimCoeffs(denCoeffs));
+    if (q.length >= 2) {
+      slant = { m: q[0], b: q[1] ?? 0 };
+      slantCoeffs = q;
+    }
+  }
+
+  // Crossing points (HA / Slant crosses curve)
+  const crossings = [];
+  if (ha !== null) {
+    // f(x) = ha → num(x) - ha*den(x) = 0
+    const diff = numCoeffs.map((c, i) => {
+      const n = numCoeffs.length - 1 - i;
+      return c - ha * (denCoeffs[denCoeffs.length - 1 - (numCoeffs.length - 1 - i)] ?? 0);
+    });
+    // simpler: build num - ha*den
+    const n = Math.max(numCoeffs.length, denCoeffs.length);
+    const pad = (arr, len) => {
+      const out = new Array(len).fill(0);
+      for (let i = 0; i < arr.length; i++) out[len - arr.length + i] = arr[i];
+      return out;
+    };
+    const pn = pad(numCoeffs, n);
+    const pd = pad(denCoeffs, n);
+    const diff2 = pn.map((c, i) => c - ha * pd[i]);
+    const crs = findRoots(diff2);
+    for (const cx of crs) {
+      const dv = polyEval(denCoeffs, cx);
+      if (Math.abs(dv) > 0.05 && !holes.some(h => Math.abs(h - cx) < 0.05)) {
+        crossings.push({ x: cx, y: ha, type: 'HA' });
+      }
+    }
+  }
+  if (slant) {
+    // f(x) = m*x + b → num(x) - (mx+b)*den(x) = 0
+    // Build (m*x + b)*den - num = 0
+    const d = trimCoeffs(denCoeffs);
+    const slantPoly = [slant.m, slant.b]; // mx + b
+    // multiply slantPoly * d
+    const prod = new Array(slantPoly.length + d.length - 1).fill(0);
+    for (let i = 0; i < slantPoly.length; i++)
+      for (let j = 0; j < d.length; j++)
+        prod[i+j] += slantPoly[i] * d[j];
+    const n2 = trimCoeffs(numCoeffs);
+    const len = Math.max(prod.length, n2.length);
+    const pad2 = (arr, len) => { const o = new Array(len).fill(0); for(let i=0;i<arr.length;i++) o[len-arr.length+i]=arr[i]; return o; };
+    const pp = pad2(prod, len);
+    const pn2 = pad2(n2, len);
+    const diff3 = pp.map((c, i) => c - pn2[i]);
+    const crs2 = findRoots(diff3);
+    for (const cx of crs2) {
+      const dv = polyEval(denCoeffs, cx);
+      const fy = slant.m * cx + slant.b;
+      if (Math.abs(dv) > 0.05 && !holes.some(h => Math.abs(h-cx) < 0.05)) {
+        crossings.push({ x: cx, y: fy, type: 'Slant' });
+      }
+    }
+  }
+
+  // VA multiplicity (odd/even) via sign-change test
+  const vaMult = vas.map(va => {
+    const eps = 1e-4;
+    const fLeft  = polyEval(denCoeffs, va - eps);
+    const fRight = polyEval(denCoeffs, va + eps);
+    const odd = fLeft * fRight < 0;
+    return { x: va, odd };
+  });
+
+  return { holes, vas, vaMult, ha, slant, crossings, numDeg, denDeg, numRoots };
+}
+
+// ────────────────────────────────────────────────────────────
+// Formatting helpers
+// ────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (Math.abs(n) < 1e-9) return '0';
+  const r = Math.round(n * 1000) / 1000;
+  return r === Math.round(r) ? String(Math.round(r)) : r.toFixed(3);
+}
+
+function polyStr(coeffs) {
+  const t = trimCoeffs(coeffs);
+  if (t.length === 0) return '0';
+  const deg = t.length - 1;
+  let s = '';
+  for (let i = 0; i < t.length; i++) {
+    const p = deg - i;
+    const c = t[i];
+    if (Math.abs(c) < 1e-12) continue;
+    const sign = (s === '') ? (c < 0 ? '−' : '') : (c < 0 ? ' − ' : ' + ');
+    const abs = Math.abs(c);
+    const coefStr = (Math.abs(abs - 1) < 1e-12 && p > 0) ? '' : fmt(abs);
+    const varStr = p === 0 ? '' : (p === 1 ? 'x' : `x^${p}`);
+    s += sign + coefStr + varStr;
+  }
+  return s || '0';
+}
+
+function rootStr(r) {
+  const rr = Math.round(r * 1000) / 1000;
+  if (rr < 0) return `x + ${fmt(-rr)}`;
+  if (rr > 0) return `x − ${fmt(rr)}`;
+  return 'x';
+}
+
+function buildFactoredStr(coeffs, roots) {
+  if (roots.length === 0) return polyStr(coeffs);
+  const lead = polyLeading(coeffs);
+  const leadStr = (Math.abs(lead - 1) < 1e-12) ? '' : fmt(lead);
+  return leadStr + roots.map(r => `(${rootStr(r)})`).join('');
+}
+
+// ────────────────────────────────────────────────────────────
+// Update Info Bar
+// ────────────────────────────────────────────────────────────
+function updateInfo(info) {
+  const { holes, vas, vaMult, ha, slant, crossings, numRoots } = info;
+
+  // Factored
+  const numFact = buildFactoredStr(numCoeffs, numRoots.filter(r => !holes.includes(r)));
+  const denRoots2 = vas.concat(holes);
+  const denFact = buildFactoredStr(denCoeffs, denRoots2);
+  document.getElementById('info-factored').textContent =
+    `(${numFact}) / (${denFact})` + (holes.length ? ` · holes factored out` : '');
+
+  // Holes
+  document.getElementById('info-holes').textContent =
+    holes.length ? holes.map(h => `x = ${fmt(h)}`).join(', ') : 'None';
+
+  // VAs
+  document.getElementById('info-va').textContent =
+    vas.length ? vaMult.map(v => `x = ${fmt(v.x)} [${v.odd ? 'odd' : 'even'}]`).join(', ')
+               : 'None';
+
+  // HA / Slant
+  const haEl = document.getElementById('info-ha');
+  if (ha !== null) {
+    haEl.textContent = `HA: y = ${fmt(ha)}`;
+    haEl.className = 'info-value ha-color';
+  } else if (slant) {
+    haEl.textContent = `Slant: y = ${fmt(slant.m)}x ${slant.b >= 0 ? '+' : '−'} ${fmt(Math.abs(slant.b))}`;
+    haEl.className = 'info-value slant-color';
+  } else {
+    haEl.textContent = 'No HA / Slant (OA)';
+    haEl.className = 'info-value';
+  }
+
+  // Crossings
+  const crossEl = document.getElementById('info-cross');
+  if (crossings.length) {
+    crossEl.textContent = crossings.map(c =>
+      `(${fmt(c.x)}, ${fmt(c.y)}) [${c.type}]`).join(', ');
+    crossEl.className = 'info-value cross-color';
+  } else {
+    crossEl.textContent = 'None in range';
+    crossEl.className = 'info-value';
+  }
+
+  // VA direction
+  document.getElementById('info-va-dir').textContent =
+    vaMult.length ? vaMult.map(v =>
+      `x=${fmt(v.x)}: ${v.odd ? 'odd → flips (↑/↓)' : 'even → same side'}`
+    ).join(' | ') : 'No VAs';
+
+  // Insight callout
+  const insight = document.getElementById('insight-box');
+  const insightText = document.getElementById('insight-text');
+  if (crossings.length > 0) {
+    insightText.innerHTML =
+      `The graph <strong>crosses the ${crossings[0].type} at (${fmt(crossings[0].x)}, ${fmt(crossings[0].y)})</strong>! ` +
+      `Remember: HA/Slant asymptotes only describe behavior as x → ±∞. In the middle, the graph is free to cross them.`;
+    insight.classList.add('show');
+  } else if (vaMult.some(v => !v.odd)) {
+    insightText.innerHTML =
+      `Even-power VA: <strong>both sides of the VA go to the same infinity</strong> (both +∞ or both −∞). ` +
+      `Compare to odd-power VA where the curve flips direction.`;
+    insight.classList.add('show');
+  } else {
+    insight.classList.remove('show');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// Canvas drawing
+// ────────────────────────────────────────────────────────────
+function draw() {
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const info = analyze();
+  const { holes, vas, vaMult, ha, slant, crossings } = info;
+
+  const xMin = -viewRange, xMax = viewRange;
+  const yRange = viewRange * 1.2;
+  const yMin = -yRange, yMax = yRange;
+
+  const toScreenX = x => (x - xMin) / (xMax - xMin) * W;
+  const toScreenY = y => H - (y - yMin) / (yMax - yMin) * H;
+
+  // Grid
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 1;
+  const xStep = Math.max(1, Math.round(viewRange / 5));
+  for (let x = Math.ceil(xMin); x <= xMax; x += xStep) {
+    ctx.beginPath();
+    ctx.moveTo(toScreenX(x), 0);
+    ctx.lineTo(toScreenX(x), H);
+    ctx.stroke();
+  }
+  const yStep = Math.max(1, Math.round(yRange / 5));
+  for (let y = Math.ceil(yMin); y <= yMax; y += yStep) {
+    ctx.beginPath();
+    ctx.moveTo(0, toScreenY(y));
+    ctx.lineTo(W, toScreenY(y));
+    ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#9ca3af';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(toScreenX(0), 0);
+  ctx.lineTo(toScreenX(0), H);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, toScreenY(0));
+  ctx.lineTo(W, toScreenY(0));
+  ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  for (let x = Math.ceil(xMin); x <= xMax; x += xStep) {
+    if (x === 0) continue;
+    ctx.fillText(x, toScreenX(x), toScreenY(0) + 13);
+  }
+  ctx.textAlign = 'right';
+  for (let y = Math.ceil(yMin); y <= yMax; y += yStep) {
+    if (y === 0) continue;
+    ctx.fillText(y, toScreenX(0) - 4, toScreenY(y) + 3.5);
+  }
+
+  const showLabels = document.getElementById('tog-labels').checked;
+  const showPowers = document.getElementById('tog-powers').checked;
+
+  // VAs
+  ctx.setLineDash([6, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#ef4444';
+  for (const v of vas) {
+    const sx = toScreenX(v.x);
+    ctx.beginPath();
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, H);
+    ctx.stroke();
+
+    if (showLabels) {
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 10.5px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`x = ${fmt(v.x)}`, sx + 4, 16);
+    }
+    if (showPowers) {
+      const vm = vaMult.find(vm => Math.abs(vm.x - v.x) < 0.05);
+      if (vm) {
+        ctx.fillStyle = '#ef444490';
+        ctx.font = '9px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        const label = vm.odd ? 'odd → flip' : 'even → same';
+        ctx.fillText(label, sx + 4, 30);
+      }
+    }
+  }
+
+  // HA
+  if (ha !== null) {
+    const sy = toScreenY(ha);
+    ctx.setLineDash([8, 5]);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.moveTo(0, sy);
+    ctx.lineTo(W, sy);
+    ctx.stroke();
+    if (showLabels) {
+      ctx.fillStyle = '#3b82f6';
+      ctx.font = 'bold 10.5px Inter, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`HA: y = ${fmt(ha)}`, W - 6, sy - 5);
+    }
+  }
+
+  // Slant
+  if (slant) {
+    const x1 = xMin, x2 = xMax;
+    const y1 = slant.m * x1 + slant.b, y2 = slant.m * x2 + slant.b;
+    ctx.setLineDash([7, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#a855f7';
+    ctx.beginPath();
+    ctx.moveTo(toScreenX(x1), toScreenY(y1));
+    ctx.lineTo(toScreenX(x2), toScreenY(y2));
+    ctx.stroke();
+    if (showLabels) {
+      ctx.fillStyle = '#a855f7';
+      ctx.font = 'bold 10.5px Inter, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`Slant: y = ${fmt(slant.m)}x ${slant.b >= 0 ? '+' : '−'} ${fmt(Math.abs(slant.b))}`, W - 6, toScreenY(slant.m * xMax * 0.9 + slant.b) - 5);
+    }
+  }
+
+  ctx.setLineDash([]);
+
+  // Curve — segment-by-segment, break at VAs and discontinuities
+  const vaXs = vas.map(v => v.x).sort((a,b) => a-b);
+  const breakpoints = [xMin, ...vaXs, xMax];
+
+  const STEPS = 1200;
+  const dx = (xMax - xMin) / STEPS;
+
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.2;
+
+  for (let seg = 0; seg < breakpoints.length - 1; seg++) {
+    const x0 = breakpoints[seg];
+    const x1 = breakpoints[seg + 1];
+    const margin = Math.abs(x1 - x0) * 0.005 + 0.01;
+    const xStart = x0 + margin;
+    const xEnd = x1 - margin;
+    const steps = Math.round((xEnd - xStart) / dx) + 1;
+
+    ctx.beginPath();
+    let drawing = false;
+    for (let i = 0; i <= steps; i++) {
+      const x = xStart + (xEnd - xStart) * i / steps;
+      const dv = polyEval(denCoeffs, x);
+      if (Math.abs(dv) < 1e-10) { drawing = false; continue; }
+
+      // Skip holes
+      if (holes.some(h => Math.abs(h - x) < dx * 0.8)) { drawing = false; continue; }
+
+      const y = polyEval(numCoeffs, x) / dv;
+      if (!isFinite(y) || isNaN(y) || Math.abs(y) > yRange * 3) { drawing = false; continue; }
+
+      const sx = toScreenX(x);
+      const sy = toScreenY(Math.max(yMin * 2.5, Math.min(yMax * 2.5, y)));
+
+      if (!drawing) { ctx.moveTo(sx, sy); drawing = true; }
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+  }
+
+  // Crossing points
+  if (document.getElementById('tog-crossing').checked) {
+    for (const cp of crossings) {
+      const sx = toScreenX(cp.x);
+      const sy = toScreenY(cp.y);
+      if (sx < 0 || sx > W || sy < -20 || sy > H + 20) continue;
+
+      // Glow
+      ctx.beginPath();
+      ctx.arc(sx, sy, 10, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(245,158,11,0.15)';
+      ctx.fill();
+
+      // Dot
+      ctx.beginPath();
+      ctx.arc(sx, sy, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = '#92400e';
+      ctx.font = 'bold 9.5px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      const labelX = sx + 8;
+      const labelY = sy - 7;
+      const lbl = `Crossing!\n(${fmt(cp.x)}, ${fmt(cp.y)})`;
+      ctx.fillText(`Crossing! (${cp.type})`, labelX, labelY);
+      ctx.fillStyle = '#b45309';
+      ctx.font = '8.5px Inter, sans-serif';
+      ctx.fillText(`(${fmt(cp.x)}, ${fmt(cp.y)})`, labelX, labelY + 11);
+    }
+  }
+
+  // Holes
+  if (document.getElementById('tog-holes').checked) {
+    for (const h of holes) {
+      const sx = toScreenX(h);
+      const y = (Math.abs(polyEval(denCoeffs, h)) < 1e-10)
+        ? (polyEval(numCoeffs, h) / (polyEval(denCoeffs, h + 1e-6))) : 0;
+      // L'Hopital approximation
+      const hval = polyEval(numCoeffs, h) / polyEval(denCoeffs, h + 1e-7);
+      const sy = toScreenY(isFinite(hval) && Math.abs(hval) < yRange ? hval : 0);
+      ctx.beginPath();
+      ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = '#6b7280';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  updateInfo(info);
+  updateFnDisplay();
+}
+
+// ────────────────────────────────────────────────────────────
+// Function display above coefficients
+// ────────────────────────────────────────────────────────────
+function updateFnDisplay() {
+  document.getElementById('fn-num-display').textContent = polyStr(numCoeffs);
+  document.getElementById('fn-den-display').textContent = polyStr(denCoeffs);
+}
+
+// ────────────────────────────────────────────────────────────
+// Input UI
+// ────────────────────────────────────────────────────────────
+function buildPolyInputs(containerId, deg, vals) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  container.className = `poly-inputs${deg <= 2 ? ' poly-inputs-3' : ''}`;
+
+  for (let i = deg; i >= 0; i--) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'coeff-wrap';
+
+    const label = document.createElement('label');
+    label.textContent = i === 0 ? 'const' : (i === 1 ? 'x' : `x^${i}`);
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = 'any';
+    input.value = vals[deg - i] !== undefined ? vals[deg - i] : 0;
+    input.dataset.power = i;
+    input.dataset.container = containerId;
+    input.addEventListener('input', onCoeffChange);
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    container.appendChild(wrapper);
+  }
+}
+
+function onCoeffChange() {
+  readCoeffs();
+  draw();
+}
+
+function readCoeffs() {
+  const numDeg = parseInt(document.getElementById('num-deg').value);
+  const denDeg = parseInt(document.getElementById('den-deg').value);
+
+  numCoeffs = new Array(numDeg + 1).fill(0);
+  denCoeffs = new Array(denDeg + 1).fill(0);
+
+  document.querySelectorAll('#num-inputs input').forEach(inp => {
+    const p = parseInt(inp.dataset.power);
+    numCoeffs[numDeg - p] = parseFloat(inp.value) || 0;
+  });
+  document.querySelectorAll('#den-inputs input').forEach(inp => {
+    const p = parseInt(inp.dataset.power);
+    denCoeffs[denDeg - p] = parseFloat(inp.value) || 0;
+  });
+}
+
+function updateInputs() {
+  const numDeg = parseInt(document.getElementById('num-deg').value);
+  const denDeg = parseInt(document.getElementById('den-deg').value);
+  buildPolyInputs('num-inputs', numDeg, new Array(numDeg + 1).fill(0));
+  buildPolyInputs('den-inputs', denDeg, new Array(denDeg + 1).fill(0));
+  readCoeffs();
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// Zoom
+// ────────────────────────────────────────────────────────────
+function onZoom() {
+  const slider = document.getElementById('zoom-slider');
+  viewRange = parseFloat(slider.value);
+  document.getElementById('zoom-val-label').textContent = `±${viewRange}`;
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// Preset loader
+// ────────────────────────────────────────────────────────────
+const PRESETS = {
+  A: {
+    numDeg: 1, numVals: [1, -1],        // x - 1
+    denDeg: 2, denVals: [1, 0, -4],     // x² - 4
+    zoom: 8
+  },
+  B: {
+    numDeg: 2, numVals: [3, 2, -1],     // 3x² + 2x - 1
+    denDeg: 2, denVals: [1, 0, -1],     // x² - 1
+    zoom: 12
+  },
+  C: {
+    numDeg: 2, numVals: [1, -1, -2],    // x² - x - 2
+    denDeg: 1, denVals: [1, -3],        // x - 3
+    zoom: 12
+  }
+};
+
+function loadPreset(type) {
+  // Active button highlight
+  ['A','B','C'].forEach(t => {
+    document.getElementById(`btn-${t.toLowerCase()}`).classList.toggle('active', t === type);
+  });
+
+  const p = PRESETS[type];
+
+  // Set degree selects
+  document.getElementById('num-deg').value = p.numDeg;
+  document.getElementById('den-deg').value = p.denDeg;
+
+  // Build inputs with preset values
+  buildPolyInputs('num-inputs', p.numDeg, p.numVals);
+  buildPolyInputs('den-inputs', p.denDeg, p.denVals);
+
+  // Set zoom
+  viewRange = p.zoom;
+  document.getElementById('zoom-slider').value = p.zoom;
+  document.getElementById('zoom-val-label').textContent = `±${p.zoom}`;
+
+  readCoeffs();
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// Canvas resize on window resize
+// ────────────────────────────────────────────────────────────
+function resizeCanvas() {
+  const canvas = document.getElementById('graph');
+  const wrap = canvas.parentElement;
+  const maxW = wrap.clientWidth - 32;
+  const w = Math.min(680, maxW);
+  const h = Math.round(w * 480 / 680);
+  canvas.width = w;
+  canvas.height = h;
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// Init
+// ────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  resizeCanvas();
+  loadPreset('A');
+});
+window.addEventListener('resize', () => {
+  resizeCanvas();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rational Functions: Asymptotes, Holes &amp; Graphing — Karalyn Lee</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']] },
+  startup: { ready: () => { MathJax.startup.defaultReady(); } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+/* ===== base-print.css ===== */
+@page { size: letter; margin: 0.5in; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fafafa; }
+body { font-family: 'Century Schoolbook','Times New Roman',serif; color: #000; }
+.page { max-width: 720px; margin: 0 auto; padding: 70px 50px 40px 50px; background: #fff; }
+.page-break { page-break-before: always; break-before: page; }
+@media print {
+  html, body { background: #fff; }
+  .page { max-width: none; padding: 0.7in 0.6in 0.5in 0.6in; margin: 0; box-shadow: none; }
+  .problem, .answer-block, .reminder, .example, .word-problem { page-break-inside: avoid; break-inside: avoid; }
+  .part-header, .directions, .problem-header, h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+  .page-break { page-break-before: always; break-before: page; }
+  .footer { display: none !important; }
+}
+
+/* ===== theme-girl.css ===== */
+:root {
+  --color-primary:       #c2185b;
+  --color-primary-dark:  #880e4f;
+  --color-accent:        #7b1fa2;
+  --color-header-border: #c2185b;
+  --color-final-answer:  #2e7d32;
+  --color-warning:       #d84315;
+  --color-parent-note:   #6a1b9a;
+  --color-tag-bg:        transparent;
+  --color-tag-border:    #c2185b;
+  --color-tag-text:      #c2185b;
+  --color-muted:         #555;
+  --color-rule:          #ccc;
+}
+
+/* ===== level-high.css ===== */
+body { font-family:'Source Serif Pro','Georgia','Times New Roman',serif; font-size:10.5pt; line-height:1.55; }
+h1,h2,h3,.part-header { font-family:'Libre Baskerville','Georgia',serif; }
+.header { text-align:center; padding-bottom:10px; margin-bottom:16px; border-bottom:2px solid var(--color-header-border); }
+.school-name { font-size:9pt; letter-spacing:4px; color:var(--color-primary); font-weight:bold; }
+.subject-tag { display:inline-block; padding:2px 10px; font-size:8pt; letter-spacing:2px; margin:5px 3px 7px 3px; font-weight:bold; border:1.5px solid var(--color-primary); color:var(--color-primary); }
+h1 { font-size:16pt; margin:6px 0 8px 0; font-weight:bold; line-height:1.3; }
+.info { display:flex; justify-content:space-between; font-size:10pt; margin-top:6px; }
+.standard { font-size:8pt; font-style:italic; margin-top:4px; color:var(--color-muted); }
+.part-header { font-size:13pt; font-weight:bold; color:var(--color-primary); margin:22px 0 6px 0; padding-bottom:3px; border-bottom:1.5px solid var(--color-primary); }
+.directions { font-size:10pt; font-style:italic; color:#333; margin-bottom:12px; line-height:1.5; }
+.directions strong { color:#000; font-style:normal; }
+.problem { margin:24px 0; font-size:10.5pt; line-height:1.6; padding-left:8px; border-left:3px solid var(--color-primary); }
+.q-num { display:inline-block; min-width:26px; font-weight:bold; color:var(--color-primary); }
+.work-space { min-height:1.5in; margin-left:24px; margin-top:6px; border-bottom:1px dashed #ddd; }
+.graph-container { margin:12px auto; page-break-inside:avoid; break-inside:avoid; }
+.jxgbox { max-width:340px; height:280px; margin:0 auto; border:1px solid #ccc; }
+.example { border:2px solid var(--color-final-answer); padding:12px 16px; margin:14px 0; page-break-inside:avoid; break-inside:avoid; }
+.example-title { font-weight:bold; color:var(--color-final-answer); margin-bottom:6px; font-size:11pt; }
+.example-solution { border-left:3px solid var(--color-final-answer); padding-left:12px; margin-top:8px; font-size:10pt; }
+.footer { text-align:center; font-size:8pt; color:#666; border-top:1px solid var(--color-rule); margin-top:20px; padding-top:6px; }
+
+/* ===== Worksheet-specific ===== */
+.concept-box { border:1.5px solid var(--color-accent); padding:10px 14px; margin:14px 0; font-size:10pt; border-left-width:4px; }
+.concept-box .title { font-weight:bold; color:var(--color-accent); margin-bottom:4px; }
+.step { margin:4px 0 4px 12px; font-size:10pt; line-height:1.6; }
+.step-label { font-weight:bold; color:var(--color-accent); }
+.find-table { border-collapse:collapse; margin:10px 0 6px 24px; font-size:10pt; }
+.find-table td { border:1px solid #999; padding:5px 14px; min-width:80px; }
+.find-table td:first-child { font-weight:bold; color:var(--color-primary); background:transparent; width:120px; }
+.graph-label { font-size:9pt; text-align:center; color:var(--color-muted); margin-top:3px; font-style:italic; }
+
+/* Kenny Reminder Box */
+.kenny-reminder {
+  border:2px solid #f57c00;
+  border-left:5px solid #f57c00;
+  background:#fff8f0;
+  border-radius:4px;
+  padding:10px 14px;
+  margin:14px 0;
+  page-break-inside:avoid;
+  break-inside:avoid;
+}
+.kr-header {
+  font-family:'Libre Baskerville','Georgia',serif;
+  font-weight:bold;
+  color:#e65100;
+  font-size:10.5pt;
+  margin-bottom:6px;
+}
+.kr-icon { margin-right:6px; }
+.kr-body { font-size:10pt; line-height:1.6; color:#333; }
+.kr-body p { margin:4px 0; }
+
+/* Long division display */
+.poly-div { font-family:'Courier New',monospace; font-size:10.5pt; margin:8px 0 8px 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="school-name">NEWTON SCHOOL</div>
+  <div class="subject-tag">PRE-CALCULUS</div>
+  <h1>Rational Functions: Asymptotes, Holes &amp; Graphing</h1>
+  <div class="info">
+    <span><strong>Student:</strong> Karalyn "Kara" Lee</span>
+    <span><strong>Date:</strong> 2026-05-12</span>
+  </div>
+  <div class="standard">
+    <strong>Standard:</strong> CCSS.MATH.CONTENT.HSF-IF.C.7d &mdash;
+    Graph rational functions, identifying zeros, asymptotes (vertical, horizontal, slant), and holes.
+    Perform polynomial long division to identify slant asymptotes.
+  </div>
+</div>
+
+<!-- CONCEPT BOX -->
+<div class="concept-box">
+  <div class="title">Key Rules: Analyzing $f(x) = \dfrac{p(x)}{q(x)}$</div>
+  <table style="width:100%;font-size:10pt;border-collapse:collapse;">
+    <tr>
+      <td style="padding:4px 10px 4px 0;width:30%;font-weight:bold;color:var(--color-primary);vertical-align:top;">1. Factor First:</td>
+      <td style="padding:4px 0;">Factor <em>both</em> numerator and denominator completely.</td>
+    </tr>
+    <tr>
+      <td style="padding:4px 10px 4px 0;font-weight:bold;color:var(--color-primary);vertical-align:top;">2. Hole vs VA:</td>
+      <td style="padding:4px 0;">
+        Factor in <strong>num &amp; denom</strong> → <strong>Hole</strong> (plug cancelled value → $y$-coord).<br>
+        Factor in <strong>denom only</strong> → <strong>Vertical Asymptote</strong>.
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:4px 10px 4px 0;font-weight:bold;color:var(--color-primary);vertical-align:top;">3. Horizontal Asymptote:</td>
+      <td style="padding:4px 0;">
+        deg($p$) $<$ deg($q$) &rarr; $y=0$ &nbsp;|&nbsp;
+        deg($p$) $=$ deg($q$) &rarr; $y=\dfrac{\text{lead}_p}{\text{lead}_q}$ &nbsp;|&nbsp;
+        deg($p$) $>$ deg($q$) &rarr; No HA
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:4px 10px 4px 0;font-weight:bold;color:var(--color-primary);vertical-align:top;">4. Slant Asymptote:</td>
+      <td style="padding:4px 0;">When deg($p$) = deg($q$) + 1. Use <strong>polynomial long division</strong>; quotient = slant.</td>
+    </tr>
+    <tr>
+      <td style="padding:4px 10px 4px 0;font-weight:bold;color:var(--color-primary);vertical-align:top;">5. Direction near VA:</td>
+      <td style="padding:4px 0;">Use a sign chart or test values just left/right of the VA to determine $+\infty$ or $-\infty$.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- KENNY REMINDER BOX -->
+<div class="kenny-reminder">
+  <div class="kr-header"><span class="kr-icon">&#128276;</span> Mr. Kenny's Key Point</div>
+  <div class="kr-body">
+    <p>Always <strong>factor first</strong>. Same factor in num + denom = <strong>hole</strong>. Factor only in denom = <strong>vertical asymptote</strong>.</p>
+    <p>Compare <strong>degrees</strong> for horizontal: less &rarr; $y=0$, equal &rarr; ratio of leading coefficients, more &rarr; slant (if difference = 1).</p>
+  </div>
+</div>
+
+<!-- EXAMPLES -->
+<div class="part-header">Worked Examples</div>
+
+<!-- EXAMPLE 1 -->
+<div class="example">
+  <div class="example-title">Example 1 &mdash; Hole, VA &amp; Horizontal Asymptote</div>
+  <p style="margin:0 0 6px 0;">Given: $\displaystyle f(x) = \frac{-4x - 16}{x^2 + 6x + 8}$</p>
+  <div class="example-solution">
+    <p class="step"><span class="step-label">Step 1 — Factor:</span>
+      $\dfrac{-4x-16}{x^2+6x+8} = \dfrac{-4(x+4)}{(x+2)(x+4)}$
+    </p>
+    <p class="step"><span class="step-label">Step 2 — Hole:</span>
+      $(x+4)$ appears in both &rarr; <strong>Hole at $x = -4$</strong>.<br>
+      Reduced function: $\dfrac{-4}{x+2}$.&nbsp; Plug in $x=-4$: $\;\dfrac{-4}{-4+2} = \dfrac{-4}{-2} = 2$ &rarr; <strong>Hole at $(-4,\,2)$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 3 — VA:</span>
+      Remaining denominator: $(x+2) = 0$ &rarr; <strong>VA: $x = -2$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 4 — HA:</span>
+      deg(num) $= 1 <$ deg(denom) $= 2$ &rarr; <strong>HA: $y = 0$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 5 — Direction near $x = -2$:</span>
+      As $x \to -2^-$: $(x+2) \to 0^-$, numerator $\approx -4 < 0$ &rarr; $\dfrac{-4}{0^-} \to +\infty$<br>
+      As $x \to -2^+$: $(x+2) \to 0^+$ &rarr; $\dfrac{-4}{0^+} \to -\infty$
+    </p>
+  </div>
+  <div class="graph-container" style="margin-top:10px;">
+    <div id="ex1graph" class="jxgbox" style="max-width:340px;height:260px;"></div>
+    <div class="graph-label">$f(x) = \frac{-4x-16}{x^2+6x+8}$ — VA: $x=-2$, HA: $y=0$, Hole: $(-4,2)$</div>
+  </div>
+</div>
+
+<!-- EXAMPLE 2 -->
+<div class="example">
+  <div class="example-title">Example 2 &mdash; Two VAs, Hole &amp; Horizontal Asymptote</div>
+  <p style="margin:0 0 6px 0;">Given: $\displaystyle f(x) = \frac{-3x + 3}{x^3 - 4x^2 + 3x}$</p>
+  <div class="example-solution">
+    <p class="step"><span class="step-label">Step 1 — Factor:</span>
+      Numerator: $-3(x-1)$.<br>
+      Denominator: $x(x^2-4x+3) = x(x-1)(x-3)$.<br>
+      So: $\dfrac{-3(x-1)}{x(x-1)(x-3)}$
+    </p>
+    <p class="step"><span class="step-label">Step 2 — Hole:</span>
+      $(x-1)$ cancels &rarr; <strong>Hole at $x = 1$</strong>.<br>
+      Reduced: $\dfrac{-3}{x(x-3)}$.&nbsp; Plug $x=1$: $\dfrac{-3}{1\cdot(1-3)} = \dfrac{-3}{-2} = \dfrac{3}{2}$ &rarr; <strong>Hole at $\!\left(1,\,\dfrac{3}{2}\right)$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 3 — VAs:</span>
+      Remaining denom zeros: $x=0$ and $x=3$ &rarr; <strong>VA: $x=0$ and $x=3$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 4 — HA:</span>
+      deg(num) $=1 <$ deg(denom) $=3$ &rarr; <strong>HA: $y = 0$</strong>
+    </p>
+  </div>
+  <div class="graph-container" style="margin-top:10px;">
+    <div id="ex2graph" class="jxgbox" style="max-width:340px;height:260px;"></div>
+    <div class="graph-label">$f(x) = \frac{-3x+3}{x^3-4x^2+3x}$ — VAs: $x=0,\;x=3$, HA: $y=0$, Hole: $\left(1,\frac{3}{2}\right)$</div>
+  </div>
+</div>
+
+<!-- EXAMPLE 3 — SLANT -->
+<div class="example">
+  <div class="example-title">Example 3 &mdash; Slant Asymptote (Polynomial Long Division)</div>
+  <p style="margin:0 0 6px 0;">Given: $\displaystyle f(x) = \frac{x^2 - x - 2}{x - 3}$</p>
+  <div class="example-solution">
+    <p class="step"><span class="step-label">Step 1 — Factor &amp; check for holes:</span>
+      Numerator: $(x-2)(x+1)$.&nbsp; Denominator: $(x-3)$.<br>
+      No common factors &rarr; <strong>No holes</strong>.
+    </p>
+    <p class="step"><span class="step-label">Step 2 — VA:</span>
+      $x - 3 = 0$ &rarr; <strong>VA: $x = 3$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 3 — Slant Asymptote:</span>
+      deg(num) $= 2 =$ deg(denom) $+ 1$ &rarr; <strong>Slant asymptote exists!</strong><br>
+      Polynomial long division: $(x^2 - x - 2) \div (x - 3)$
+    </p>
+    <p class="step" style="margin-left:30px;">
+      $\phantom{x-3\;)}\; x + 2$<br>
+      $x-3\;\overline{)\; x^2 - x - 2}$<br>
+      $\phantom{x-3\;)}\;\underline{-(x^2 - 3x)}$<br>
+      $\phantom{x-3\;)x^2\;}\; 2x - 2$<br>
+      $\phantom{x-3\;)x^2\;}\;\underline{-(2x - 6)}$<br>
+      $\phantom{x-3\;)x^2\;2x\;}\; 4\quad\text{(remainder)}$<br>
+      Quotient $= x + 2$ &rarr; <strong>Slant Asymptote: $y = x + 2$</strong>
+    </p>
+    <p class="step"><span class="step-label">Step 4 — Intercepts:</span>
+      $x$-intercepts: $(x-2)(x+1) = 0$ &rarr; $x = 2$ and $x = -1$.<br>
+      $y$-intercept: $f(0) = \dfrac{-2}{-3} = \dfrac{2}{3}$
+    </p>
+  </div>
+  <div class="graph-container" style="margin-top:10px;">
+    <div id="ex3graph" class="jxgbox" style="max-width:340px;height:260px;"></div>
+    <div class="graph-label">$f(x) = \frac{x^2-x-2}{x-3}$ — VA: $x=3$, Slant: $y=x+2$, No holes</div>
+  </div>
+</div>
+
+<!-- PRACTICE PROBLEMS -->
+<div class="part-header page-break">Practice Problems</div>
+<div class="directions">
+  For each rational function: <strong>(a)</strong> Factor completely and identify all holes (give exact coordinates).
+  <strong>(b)</strong> Find all vertical asymptotes. <strong>(c)</strong> Find the horizontal or slant asymptote (show degree comparison or long division). <strong>(d)</strong> Sketch the curve on the grid using the asymptotes as guides.
+</div>
+
+<!-- P1 -->
+<div class="problem">
+  <span class="q-num">1.</span> $\displaystyle f(x) = \frac{x-2}{x^2-4}$
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p1graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P2 -->
+<div class="problem">
+  <span class="q-num">2.</span> $\displaystyle f(x) = \frac{x^2 - 9}{x + 3}$
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p2graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P3 -->
+<div class="problem page-break">
+  <span class="q-num">3.</span> $\displaystyle f(x) = \frac{2x + 6}{x^2 + 5x + 6}$
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p3graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P4 -->
+<div class="problem">
+  <span class="q-num">4.</span> $\displaystyle f(x) = \frac{x^2 + x - 6}{-x^2 + 3x}$ &nbsp;<em style="font-size:9pt;color:var(--color-muted);">&#9733; Kenny's emphasis problem</em>
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p4graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P5 -->
+<div class="problem">
+  <span class="q-num">5.</span> $\displaystyle f(x) = \frac{3x^2}{x^2 - 1}$
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p5graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P6 -->
+<div class="problem page-break">
+  <span class="q-num">6.</span> $\displaystyle f(x) = \frac{x^2 - 4}{x^2 - x - 6}$
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p6graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P7 -->
+<div class="problem">
+  <span class="q-num">7.</span> $\displaystyle f(x) = \frac{x^2 + 2x - 8}{x + 4}$ &nbsp;<em style="font-size:9pt;color:var(--color-muted);">(Hole &amp; linear simplification)</em>
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p7graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P8 -->
+<div class="problem">
+  <span class="q-num">8.</span> $\displaystyle f(x) = \frac{x^2 - 1}{x - 1}$ &nbsp;<em style="font-size:9pt;color:var(--color-muted);">(Hole &amp; linear)</em>
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p8graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P9 -->
+<div class="problem page-break">
+  <span class="q-num">9.</span> $\displaystyle f(x) = \frac{x^2 + 2x + 1}{x + 1}$ &nbsp;<em style="font-size:9pt;color:var(--color-muted);">(Perfect square — hole)</em>
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p9graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<!-- P10 -->
+<div class="problem">
+  <span class="q-num">10.</span> $\displaystyle f(x) = \frac{x^2 - 2x - 3}{x - 3}$ &nbsp;<em style="font-size:9pt;color:var(--color-muted);">(Hole &amp; linear)</em>
+  <table class="find-table">
+    <tr><td>Factored Form:</td><td>&nbsp;</td></tr>
+    <tr><td>Hole(s):</td><td>&nbsp;</td></tr>
+    <tr><td>VA:</td><td>&nbsp;</td></tr>
+    <tr><td>HA / SA:</td><td>&nbsp;</td></tr>
+    <tr><td>Direction Sketch:</td><td>&nbsp;</td></tr>
+  </table>
+  <div class="work-space"></div>
+  <div class="graph-container">
+    <div id="p10graph" class="jxgbox" style="max-width:300px;height:240px;"></div>
+  </div>
+</div>
+
+<div class="footer">Newton School &mdash; Karalyn "Kara" Lee &mdash; Pre-Calculus &mdash; 2026-05-12</div>
+</div>
+
+<script>
+/* ===== JSXGraph helper functions ===== */
+function makeBoard(id, xmin, xmax, ymin, ymax) {
+  return JXG.JSXGraph.initBoard(id, {
+    boundingbox: [xmin, ymax, xmax, ymin],
+    axis: true, grid: true, showCopyright: false, showNavigation: false,
+    defaultAxes: {
+      x: { ticks: { insertTicks:true, minorTicks:0, ticksDistance:1, label:{ offset:[0,-12], fontSize:10 } } },
+      y: { ticks: { insertTicks:true, minorTicks:0, ticksDistance:1, label:{ offset:[-18,0], fontSize:10 } } }
+    }
+  });
+}
+function dashedVA(b, xval) {
+  b.create('segment',[[xval,-20],[xval,20]],{strokeColor:'#888',dash:2,strokeWidth:1.5});
+}
+function dashedHA(b, yval) {
+  b.create('line',[[0,yval],[1,yval]],{straightFirst:true,straightLast:true,strokeColor:'#888',dash:3,strokeWidth:1});
+}
+function slopeIntLine(b, m, c, color) {
+  b.create('functiongraph',[function(x){ return m*x + c; }],{strokeColor:color||'#7b1fa2',dash:2,strokeWidth:1.5});
+}
+function plotCurve(b, fn) {
+  b.create('functiongraph',[fn],{strokeColor:'#c2185b',strokeWidth:2,doAdvancedPlot:true});
+}
+function holePoint(b, x, y) {
+  b.create('point',[x,y],{size:5,strokeColor:'#c2185b',fillColor:'white',strokeWidth:2,name:'',fixed:true});
+}
+
+/* ===== EXAMPLE 1: f(x) = -4(x+4)/((x+2)(x+4)) simplified = -4/(x+2) ===== */
+(function(){
+  var b = makeBoard('ex1graph',-10,6,-8,8);
+  dashedVA(b,-2);
+  dashedHA(b,0);
+  plotCurve(b,function(x){ return -4/(x+2); });
+  holePoint(b,-4,2);
+  b.create('text',[-1.5,5,'VA: x=−2'],{fontSize:9,strokeColor:'#888'});
+})();
+
+/* ===== EXAMPLE 2: f(x) = -3/(x(x-3)) ===== */
+(function(){
+  var b = makeBoard('ex2graph',-4,7,-6,6);
+  dashedVA(b,0);
+  dashedVA(b,3);
+  dashedHA(b,0);
+  plotCurve(b,function(x){ return -3/(x*(x-3)); });
+  holePoint(b,1,1.5);
+})();
+
+/* ===== EXAMPLE 3: f(x) = (x^2-x-2)/(x-3), SA: y=x+2 ===== */
+(function(){
+  var b = makeBoard('ex3graph',-6,8,-8,14);
+  dashedVA(b,3);
+  slopeIntLine(b,1,2,'#7b1fa2');
+  plotCurve(b,function(x){ return (x*x-x-2)/(x-3); });
+  b.create('text',[4,10,'SA: y=x+2'],{fontSize:9,strokeColor:'#7b1fa2'});
+})();
+
+/* ===== PRACTICE: blank grids for student drawing ===== */
+function blankGrid(id) {
+  JXG.JSXGraph.initBoard(id, {
+    boundingbox: [-8,8,8,-8],
+    axis:true, grid:true, showCopyright:false, showNavigation:false,
+    defaultAxes:{
+      x:{ticks:{insertTicks:true,minorTicks:0,ticksDistance:1,label:{offset:[0,-12],fontSize:9}}},
+      y:{ticks:{insertTicks:true,minorTicks:0,ticksDistance:1,label:{offset:[-16,0],fontSize:9}}}
+    }
+  });
+}
+['p1graph','p2graph','p3graph','p4graph','p5graph',
+ 'p6graph','p7graph','p8graph','p9graph','p10graph'].forEach(blankGrid);
+</script>
+
+<!-- ===== editor-widget.js (inline) ===== -->
+<script>
+(function(){
+  // editor-widget: floating note-taking overlay for in-class use
+  var style = document.createElement('style');
+  style.textContent = [
+    '.ew-toggle{position:fixed;bottom:18px;right:18px;z-index:9999;background:#c2185b;color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;}',
+    '.ew-panel{position:fixed;bottom:72px;right:18px;z-index:9998;background:#fff;border:2px solid #c2185b;border-radius:8px;width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.18);display:none;flex-direction:column;}',
+    '.ew-panel.open{display:flex;}',
+    '.ew-header{background:#c2185b;color:#fff;padding:8px 12px;font-family:Georgia,serif;font-weight:bold;font-size:11pt;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center;}',
+    '.ew-header button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:0;}',
+    '.ew-body{padding:10px;}',
+    '.ew-body textarea{width:100%;height:120px;border:1px solid #ddd;border-radius:4px;font-size:10pt;padding:6px;resize:vertical;}',
+    '.ew-body .ew-actions{display:flex;gap:6px;margin-top:6px;}',
+    '.ew-body .ew-actions button{flex:1;padding:5px;border:none;border-radius:4px;cursor:pointer;font-size:9.5pt;}',
+    '.ew-save{background:#c2185b;color:#fff;}',
+    '.ew-clear{background:#f5f5f5;color:#333;}',
+    '.ew-notes{margin-top:8px;max-height:80px;overflow-y:auto;font-size:9pt;color:#333;border-top:1px solid #eee;padding-top:6px;}'
+  ].join('');
+  document.head.appendChild(style);
+
+  var btn = document.createElement('button');
+  btn.className = 'ew-toggle'; btn.title = 'Class Notes';
+  btn.innerHTML = '&#9998;';
+  document.body.appendChild(btn);
+
+  var panel = document.createElement('div');
+  panel.className = 'ew-panel';
+  panel.innerHTML = '<div class="ew-header"><span>&#9998; Class Notes</span><button id="ew-close">&times;</button></div>' +
+    '<div class="ew-body">' +
+    '<textarea id="ew-input" placeholder="Type a note..."></textarea>' +
+    '<div class="ew-actions"><button class="ew-save" id="ew-save">Save</button><button class="ew-clear" id="ew-clear">Clear All</button></div>' +
+    '<div class="ew-notes" id="ew-notes"></div>' +
+    '</div>';
+  document.body.appendChild(panel);
+
+  var notes = JSON.parse(localStorage.getItem('ew_kara_0512') || '[]');
+  function renderNotes(){
+    var el = document.getElementById('ew-notes');
+    el.innerHTML = notes.map(function(n){ return '<div style="padding:2px 0;border-bottom:1px solid #f0f0f0;">'+n+'</div>'; }).join('');
+  }
+  renderNotes();
+
+  btn.addEventListener('click', function(){ panel.classList.toggle('open'); });
+  document.getElementById('ew-close').addEventListener('click', function(){ panel.classList.remove('open'); });
+  document.getElementById('ew-save').addEventListener('click', function(){
+    var inp = document.getElementById('ew-input');
+    if(inp.value.trim()){ notes.push(inp.value.trim()); inp.value=''; localStorage.setItem('ew_kara_0512',JSON.stringify(notes)); renderNotes(); }
+  });
+  document.getElementById('ew-clear').addEventListener('click', function(){
+    notes=[]; localStorage.removeItem('ew_kara_0512'); renderNotes();
+  });
+})();
+</script>
+</body>
+</html>

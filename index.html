@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+  STUDENT PORTAL STANDARD (PDF popup)
+  Newton School / Live Classroom — Kenny portal v2 (2026-05-12)
+  Student: Karalyn Lee
+  Theme: emerald (#10b981 / #d1fae5 / #065f46 / #f6fcfa)
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karalyn Lee · Newton School Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student: #10b981;
+    --student-soft: #d1fae5;
+    --student-deep: #065f46;
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --paper: #ffffff;
+    --bg: #f6fcfa;
+    --line: #e8e8e8;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+  body.modal-open { overflow: hidden; }
+  .container { max-width: 680px; margin: 0 auto; background: var(--paper); box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+  .masthead { text-align: center; padding: 48px 32px 24px; border-bottom: 3px double var(--student); }
+  .masthead .school { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--student); font-weight: 600; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.1; margin-bottom: 6px; }
+  .masthead .subtitle { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-soft); }
+  .masthead .info { margin-top: 18px; font-size: 12px; color: var(--ink-soft); letter-spacing: 0.05em; }
+  .masthead .info span { margin: 0 8px; }
+  section { padding: 28px 32px; border-bottom: 1px solid var(--line); }
+  section .label { font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--student); font-weight: 600; margin-bottom: 8px; }
+  section h2 { font-family: var(--serif); font-size: 24px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+  section p { font-size: 14px; color: var(--ink-soft); margin-bottom: 12px; }
+
+  /* Timeline */
+  ul.timeline { list-style: none; padding-left: 16px; border-left: 2px solid var(--student); }
+  ul.timeline li { padding: 10px 0 10px 16px; position: relative; font-size: 13px; display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; }
+  ul.timeline li::before { content: ""; position: absolute; left: -22px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--student); }
+  ul.timeline .date { font-weight: 600; color: var(--student); margin-right: 8px; white-space: nowrap; flex-shrink: 0; }
+  .popup-link { font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.15s; cursor: pointer; }
+  .popup-link:hover { color: var(--student); border-bottom-color: var(--student); }
+  .pdf-badge { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; background: var(--student-soft); color: var(--student-deep); border-radius: 3px; padding: 1px 5px; vertical-align: middle; }
+
+  /* Activity cards */
+  .kenny-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
+  @media (max-width: 480px) { .kenny-cards { grid-template-columns: 1fr; } }
+  .kenny-card { display: block; padding: 18px 20px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); text-decoration: none; color: inherit; transition: all 0.2s; position: relative; overflow: hidden; cursor: pointer; }
+  .kenny-card:hover { border-color: var(--student); box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-2px); }
+  .kenny-card .kc-icon { font-size: 28px; margin-bottom: 8px; }
+  .kenny-card .kc-title { font-family: var(--serif); font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .kenny-card .kc-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+  .kenny-card .kc-arrow { position: absolute; top: 18px; right: 18px; color: var(--student); font-size: 14px; opacity: 0.4; transition: opacity 0.2s; }
+  .kenny-card:hover .kc-arrow { opacity: 1; }
+
+  .teacher-note { background: var(--bg); padding: 16px 20px; border-radius: 8px; border-left: 3px solid var(--student); margin-top: 12px; font-style: italic; color: var(--ink); font-size: 14px; line-height: 1.7; }
+
+  footer { text-align: center; padding: 32px; font-size: 11px; color: var(--ink-soft); }
+  footer .copyright { margin-top: 8px; font-style: italic; }
+
+  /* Modal overlay — shared by PDF lightbox + HTML activity iframe */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,40,30,0.78);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 12px; width: 92vw; max-width: 1100px;
+    height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .modal-header {
+    padding: 10px 16px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--serif); font-size: 14px; color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .modal-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .modal-title { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-esc { font-size: 11px; color: var(--ink-soft); opacity: 0.6; white-space: nowrap; }
+  .modal-close {
+    background: transparent; border: none; font-size: 22px; cursor: pointer;
+    color: var(--ink-soft); padding: 0 6px; flex-shrink: 0; line-height: 1;
+  }
+  .modal-close:hover { color: var(--student); }
+  .modal-iframe { flex: 1; border: none; width: 100%; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="masthead">
+    <div class="school">Newton School Weekly</div>
+    <h1>Karalyn Lee</h1>
+    <div class="subtitle">Pre-Calc &amp; AP Physics Workshop</div>
+    <div class="info">
+      <span>May 12, 2026</span>
+      <span>&middot;</span>
+      <span>Mr. Kenny</span>
+      <span>&middot;</span>
+      <span>Pre-Calculus &middot; AP Physics 1</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="label">Recent Work</div>
+    <h2>This Month</h2>
+    <ul class="timeline">
+      <li>
+        <span class="date">5/12</span>
+        <a class="popup-link"
+           data-src="2026-05-12/KaralynLee-2026-05-12-PreCalc_RationalFunctions-Asymptotes_Worksheet.pdf"
+           data-fallback="2026-05-12/KaralynLee-2026-05-12-PreCalc_RationalFunctions-Asymptotes_Worksheet.html">
+          Pre-Calc &middot; Rational Functions: Asymptotes Worksheet
+        </a>
+        <span class="pdf-badge">PDF</span>
+      </li>
+      <li>
+        <span class="date">5/12</span>
+        <a class="popup-link"
+           data-src="2026-05-12/KaralynLee-2026-05-12-PreCalc_RationalFunctions-Asymptotes_AnswerKey.pdf"
+           data-fallback="2026-05-12/KaralynLee-2026-05-12-PreCalc_RationalFunctions-Asymptotes_AnswerKey.html">
+          Answer Key
+        </a>
+        <span class="pdf-badge">PDF</span>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="label">From Mr. Kenny</div>
+    <h2>A note &amp; something just for you</h2>
+    <div class="teacher-note">
+      "Karalyn &mdash; Great work diving into rational functions today. Play with the explorer below &mdash; move the sliders and watch the asymptotes shift in real time. That intuition will make the algebra click much faster. &mdash; Mr. K"
+    </div>
+
+    <div class="kenny-cards">
+      <a class="kenny-card popup-activity"
+         data-src="2026-05-12/rational-function-explorer.html"
+         data-title="Rational Function Explorer">
+        <span class="kc-arrow">&#8599;</span>
+        <div class="kc-icon">&#402;(x)</div>
+        <div class="kc-title">Rational Function Explorer</div>
+        <div class="kc-desc">Tweak the numbers, watch the asymptotes shift &mdash; and see when the graph crosses them!</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div>Newton School &middot; Updated weekly</div>
+    <div class="copyright">&copy; 2026 &middot; Made with care for Karalyn Lee</div>
+  </footer>
+</div>
+
+<!-- Shared Modal (PDF lightbox + HTML activity iframe) -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span class="modal-title" id="modalTitle"></span>
+        <span class="modal-esc">ESC to close</span>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="modal-iframe" id="modalIframe" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('modalOverlay');
+  const iframe  = document.getElementById('modalIframe');
+  const title   = document.getElementById('modalTitle');
+
+  // openModal: type = 'pdf' (default) | 'html'
+  const openModal = (src, label, type) => {
+    iframe.src = src;
+    title.textContent = label;
+    overlay.classList.add('open');
+    document.body.classList.add('modal-open');
+  };
+
+  const closeModal = () => {
+    overlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    iframe.src = 'about:blank';
+  };
+
+  // PDF/HTML popup links (timeline)
+  document.querySelectorAll('.popup-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const src = a.dataset.src;
+      openModal(src, a.textContent.trim(), 'pdf');
+    });
+  });
+
+  // HTML iframe popup (for activity cards)
+  document.querySelectorAll('.popup-activity').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      openModal(a.dataset.src, a.dataset.title || a.querySelector('.kc-title').textContent, 'html');
+    });
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>
