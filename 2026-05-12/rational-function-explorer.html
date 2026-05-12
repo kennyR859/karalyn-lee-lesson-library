@@ -764,7 +764,7 @@ function updateInfo(info) {
 
   // VAs
   document.getElementById('info-va').textContent =
-    vas.length ? vaMult.map(v => `x = ${fmt(v.x)} [${v.odd ? 'odd' : 'even'}]`).join(', ')
+    vaMult.length ? vaMult.map(v => `x = ${fmt(v.x)} [${v.odd ? 'odd' : 'even'}]`).join(', ')
                : 'None';
 
   // HA / Slant
@@ -791,11 +791,20 @@ function updateInfo(info) {
     crossEl.className = 'info-value';
   }
 
-  // VA direction
-  document.getElementById('info-va-dir').textContent =
-    vaMult.length ? vaMult.map(v =>
-      `x=${fmt(v.x)}: ${v.odd ? 'odd → flips (↑/↓)' : 'even → same side'}`
-    ).join(' | ') : 'No VAs';
+  // VA direction — show actual sign on each side
+  if (vaMult.length) {
+    const eps = 1e-3;
+    const dirParts = vaMult.map(v => {
+      const fL = polyEval(numCoeffs, v.x - eps) / polyEval(denCoeffs, v.x - eps);
+      const fR = polyEval(numCoeffs, v.x + eps) / polyEval(denCoeffs, v.x + eps);
+      const dL = fL > 0 ? '+∞ ↑' : '−∞ ↓';
+      const dR = fR > 0 ? '+∞ ↑' : '−∞ ↓';
+      return `x=${fmt(v.x)}: left→${dL}, right→${dR}`;
+    });
+    document.getElementById('info-va-dir').textContent = dirParts.join(' | ');
+  } else {
+    document.getElementById('info-va-dir').textContent = 'No VAs';
+  }
 
   // Insight callout
   const insight = document.getElementById('insight-box');
@@ -813,6 +822,50 @@ function updateInfo(info) {
   } else {
     insight.classList.remove('show');
   }
+}
+
+// ────────────────────────────────────────────────────────────
+// Drawing helpers
+// ────────────────────────────────────────────────────────────
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// drawArrow: draws a vertical arrow at (cx, cy), dy = negative means up
+function drawArrow(ctx, cx, cy, dy, color) {
+  const headH = 8, headW = 6;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, cy + dy);
+  ctx.stroke();
+  // arrowhead
+  ctx.beginPath();
+  if (dy < 0) {
+    // pointing up
+    ctx.moveTo(cx, cy + dy);
+    ctx.lineTo(cx - headW/2, cy + dy + headH);
+    ctx.lineTo(cx + headW/2, cy + dy + headH);
+  } else {
+    // pointing down
+    ctx.moveTo(cx, cy + dy);
+    ctx.lineTo(cx - headW/2, cy + dy - headH);
+    ctx.lineTo(cx + headW/2, cy + dy - headH);
+  }
+  ctx.closePath();
+  ctx.fill();
 }
 
 // ────────────────────────────────────────────────────────────
@@ -881,33 +934,97 @@ function draw() {
   const showLabels = document.getElementById('tog-labels').checked;
   const showPowers = document.getElementById('tog-powers').checked;
 
-  // VAs
+  // VAs — iterate vaMult (objects with .x), draw dashed line + VA behavior arrows
   ctx.setLineDash([6, 4]);
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 2;
   ctx.strokeStyle = '#ef4444';
-  for (const v of vas) {
-    const sx = toScreenX(v.x);
+  for (const vm of vaMult) {
+    const sx = toScreenX(vm.x);
     ctx.beginPath();
     ctx.moveTo(sx, 0);
     ctx.lineTo(sx, H);
     ctx.stroke();
 
     if (showLabels) {
+      ctx.setLineDash([]);
       ctx.fillStyle = '#ef4444';
       ctx.font = 'bold 10.5px Inter, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(`x = ${fmt(v.x)}`, sx + 4, 16);
+      ctx.fillText(`x = ${fmt(vm.x)}`, sx + 4, 16);
+      ctx.setLineDash([6, 4]);
     }
     if (showPowers) {
-      const vm = vaMult.find(vm => Math.abs(vm.x - v.x) < 0.05);
-      if (vm) {
-        ctx.fillStyle = '#ef444490';
-        ctx.font = '9px Inter, sans-serif';
-        ctx.textAlign = 'left';
-        const label = vm.odd ? 'odd → flip' : 'even → same';
-        ctx.fillText(label, sx + 4, 30);
-      }
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ef444490';
+      ctx.font = '9px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      const label = vm.odd ? 'odd → flip' : 'even → same';
+      ctx.fillText(label, sx + 4, 30);
+      ctx.setLineDash([6, 4]);
     }
+
+    // VA behavior arrows: compute sign on each side
+    const eps = 1e-3;
+    const fLeft  = polyEval(numCoeffs, vm.x - eps) / polyEval(denCoeffs, vm.x - eps);
+    const fRight = polyEval(numCoeffs, vm.x + eps) / polyEval(denCoeffs, vm.x + eps);
+    const dirLeft  = fLeft  > 0 ? '+∞' : '−∞';
+    const dirRight = fRight > 0 ? '+∞' : '−∞';
+    const arrowLeft  = fLeft  > 0 ? '↑' : '↓';
+    const arrowRight = fRight > 0 ? '↑' : '↓';
+
+    ctx.setLineDash([]);
+
+    // Left side callout (x → a⁻)
+    const boxW = 80, boxH = 30, pad = 5;
+    const leftBoxX = sx - boxW - 8;
+    const leftBoxY = H * 0.15;
+    if (leftBoxX > 0) {
+      ctx.fillStyle = 'rgba(239,68,68,0.10)';
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1;
+      roundRect(ctx, leftBoxX, leftBoxY, boxW, boxH, 4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#b91c1c';
+      ctx.font = 'bold 9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`x → ${fmt(vm.x)}⁻`, leftBoxX + boxW/2, leftBoxY + 11);
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillText(`f → ${arrowLeft} ${dirLeft}`, leftBoxX + boxW/2, leftBoxY + 24);
+    }
+
+    // Right side callout (x → a⁺)
+    const rightBoxX = sx + 8;
+    const rightBoxY = H * 0.15;
+    if (rightBoxX + boxW < W) {
+      ctx.fillStyle = 'rgba(239,68,68,0.10)';
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1;
+      roundRect(ctx, rightBoxX, rightBoxY, boxW, boxH, 4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#b91c1c';
+      ctx.font = 'bold 9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`x → ${fmt(vm.x)}⁺`, rightBoxX + boxW/2, rightBoxY + 11);
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillText(`f → ${arrowRight} ${dirRight}`, rightBoxX + boxW/2, rightBoxY + 24);
+    }
+
+    // Draw small direction arrows on the curve near VA
+    const arrowYpos = H * 0.55;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.5;
+    // Left arrow
+    if (leftBoxX > 0) drawArrow(ctx, sx - 18, arrowYpos, fLeft > 0 ? -22 : 22, '#f59e0b');
+    // Right arrow
+    if (rightBoxX + boxW < W) drawArrow(ctx, sx + 18, arrowYpos, fRight > 0 ? -22 : 22, '#f59e0b');
+
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ef4444';
   }
 
   // HA
@@ -949,42 +1066,60 @@ function draw() {
 
   ctx.setLineDash([]);
 
-  // Curve — segment-by-segment, break at VAs and discontinuities
-  const vaXs = vas.map(v => v.x).sort((a,b) => a-b);
+  // Curve — segment-by-segment, break at VAs
+  // vas is array of numbers; also collect from vaMult for safety
+  const vaXs = vaMult.map(vm => vm.x).sort((a,b) => a-b);
   const breakpoints = [xMin, ...vaXs, xMax];
 
-  const STEPS = 1200;
+  // Y clamp: allow ±20 units beyond viewRange so near-VA behavior is visible
+  const yClampMax = yMax + 20;
+  const yClampMin = yMin - 20;
+
+  const STEPS = 1500;
   const dx = (xMax - xMin) / STEPS;
 
   ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 2.2;
+  ctx.lineWidth = 2.5;
 
   for (let seg = 0; seg < breakpoints.length - 1; seg++) {
     const x0 = breakpoints[seg];
     const x1 = breakpoints[seg + 1];
-    const margin = Math.abs(x1 - x0) * 0.005 + 0.01;
+    // Margin: stay away from VA edges to avoid near-infinity points
+    const margin = Math.min(0.15, Math.abs(x1 - x0) * 0.03) + 0.02;
     const xStart = x0 + margin;
-    const xEnd = x1 - margin;
-    const steps = Math.round((xEnd - xStart) / dx) + 1;
+    const xEnd   = x1 - margin;
+    if (xStart >= xEnd) continue;
+    const steps = Math.max(50, Math.round((xEnd - xStart) / dx));
 
     ctx.beginPath();
     let drawing = false;
+    let prevY = null;
     for (let i = 0; i <= steps; i++) {
       const x = xStart + (xEnd - xStart) * i / steps;
       const dv = polyEval(denCoeffs, x);
-      if (Math.abs(dv) < 1e-10) { drawing = false; continue; }
+      if (Math.abs(dv) < 1e-9) { drawing = false; prevY = null; continue; }
 
       // Skip holes
-      if (holes.some(h => Math.abs(h - x) < dx * 0.8)) { drawing = false; continue; }
+      if (holes.some(h => Math.abs(h - x) < 0.05)) { drawing = false; prevY = null; continue; }
 
       const y = polyEval(numCoeffs, x) / dv;
-      if (!isFinite(y) || isNaN(y) || Math.abs(y) > yRange * 3) { drawing = false; continue; }
+      if (!isFinite(y) || isNaN(y)) { drawing = false; prevY = null; continue; }
+
+      // If y is far off-screen, still draw (clamped) but lift pen if huge jump
+      const yClamped = Math.max(yClampMin, Math.min(yClampMax, y));
+
+      // Detect large jumps between consecutive points (near-VA residual spikes)
+      if (prevY !== null && Math.abs(yClamped - prevY) > yRange * 4) {
+        drawing = false;
+        prevY = null;
+      }
 
       const sx = toScreenX(x);
-      const sy = toScreenY(Math.max(yMin * 2.5, Math.min(yMax * 2.5, y)));
+      const sy = toScreenY(yClamped);
 
       if (!drawing) { ctx.moveTo(sx, sy); drawing = true; }
       else ctx.lineTo(sx, sy);
+      prevY = yClamped;
     }
     ctx.stroke();
   }
